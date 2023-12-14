@@ -1,17 +1,21 @@
-# 编译器设置
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-# 目标文件和依赖项
-TARGET = capture
-SRCS = capture.c frame.c ip.c tcp.c udp.c util.c
-OBJS = $(SRCS:.c=.o)
+SRCDIR = src
+INCDIR = include
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
-$(OBJS): $(SRCS) 
-	$(CC) $(CFLAGS) -c -o $@ $*.c
+SRC_FILES := $(wildcard $(SRCDIR)/*.c)
+OBJ_FILES := $(patsubst $(SRCDIR)/%.c, $(SRCDIR)/%.o, $(SRC_FILES))
 
-# 清理中间文件和可执行文件
+.PHONY: all clean
+
+all: capture
+
+capture: $(OBJ_FILES)
+	$(CC) $(CFLAGS) -o $@ $^
+
+$(SRCDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f capture $(OBJ_FILES)
